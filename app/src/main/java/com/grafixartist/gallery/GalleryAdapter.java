@@ -1,11 +1,17 @@
 package com.grafixartist.gallery;
 
 import android.content.Context;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -26,6 +32,16 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.data = data;
     }
 
+    private int position;
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -39,14 +55,19 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
 
-            Glide.with(context).load(data.get(position).getUrl())
-                    .thumbnail(0.5f)
-                    .override(200,200)
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(((MyItemHolder) holder).mImg);
+        Glide.with(context).load(data.get(position).getUrl())
+                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                .into(((MyItemHolder) holder).mImg);
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                setPosition(holder.getAdapterPosition());
+                return false;
+            }
+        });
 
     }
 
@@ -55,7 +76,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return data.size();
     }
 
-    public static class MyItemHolder extends RecyclerView.ViewHolder {
+    public static class MyItemHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         ImageView mImg;
 
 
@@ -63,8 +84,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             super(itemView);
 
             mImg = (ImageView) itemView.findViewById(R.id.item_img);
+            itemView.setOnCreateContextMenuListener(this);
         }
 
+        @Override
+        public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+            contextMenu.add(Menu.NONE, R.id.action_settings, Menu.NONE, "asdasd");
+        }
     }
 
 
