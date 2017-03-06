@@ -8,7 +8,7 @@ import android.os.Parcelable;
  */
 public class ImageModel implements Parcelable {
 
-    String name, url;
+    private String name, url;
 
     public ImageModel() {
 

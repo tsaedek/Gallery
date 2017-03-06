@@ -1,17 +1,12 @@
 package com.grafixartist.gallery;
 
 import android.content.Context;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -24,32 +19,22 @@ import java.util.List;
  */
 public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    Context context;
-    List<ImageModel> data = new ArrayList<>();
+    private OnItemClickListener mOnItemClickListener;
 
-    public GalleryAdapter(Context context, List<ImageModel> data) {
+    private Context context;
+    private List<ImageModel> data = new ArrayList<>();
+
+     public GalleryAdapter(Context context, List<ImageModel> data) {
         this.context = context;
         this.data = data;
     }
-
-    private int position;
-
-    public int getPosition() {
-        return position;
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
-    }
-
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder viewHolder;
         View v;
-            v = LayoutInflater.from(parent.getContext()).inflate(
-                    R.layout.list_item, parent, false);
-            viewHolder = new MyItemHolder(v);
+        v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+        viewHolder = new MyItemHolder(v);
 
         return viewHolder;
     }
@@ -57,18 +42,21 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
 
-        Glide.with(context).load(data.get(position).getUrl())
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                .into(((MyItemHolder) holder).mImg);
+        MyItemHolder myHolder = (MyItemHolder)holder;
+        ImageModel model = data.get(position);
 
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+        Glide.with(context).load(model.getUrl())
+                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                .into(myHolder.mImg);
+
+        myHolder.mName.setText(model.getName());
+
+        myHolder.mContainer.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
-                setPosition(holder.getAdapterPosition());
-                return false;
+            public void onClick(View view) {
+                mOnItemClickListener.onItemClick(view, holder.getAdapterPosition());
             }
         });
-
     }
 
     @Override
@@ -76,22 +64,29 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return data.size();
     }
 
-    public static class MyItemHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
-        ImageView mImg;
 
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.mOnItemClickListener = onItemClickListener;
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
+    }
+
+
+    public static class MyItemHolder extends RecyclerView.ViewHolder {
+        View mContainer;
+        ImageView mImg;
+        TextView mName;
 
         public MyItemHolder(View itemView) {
             super(itemView);
 
+            itemView.setLongClickable(true);
+            mContainer = itemView;
             mImg = (ImageView) itemView.findViewById(R.id.item_img);
-            itemView.setOnCreateContextMenuListener(this);
-        }
-
-        @Override
-        public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-            contextMenu.add(Menu.NONE, R.id.action_settings, Menu.NONE, "asdasd");
+            mName = (TextView) itemView.findViewById(R.id.name);
         }
     }
-
 
 }
